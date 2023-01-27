@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import { realAuth } from "../utils/RealAuth";
+import { signup } from "../utils/Signup";
 import { useNavigate } from "react-router-dom";
 
 
@@ -8,15 +9,19 @@ export const AuthProvider = ({ children }) => {
     const navigate = useNavigate();
     const [token, setToken] = useState(null);
 
-    const handleLogin = async (username, password) => {
-        const token = realAuth(username, password);
+    const handleLoginSubmit = async(username, password) => {
+        const token = await realAuth(username, password);
         console.log(token);
-        if(token != null){
+        if (token != null) {
             setToken(token);
             navigate("/landing");
         } else {
             navigate("/home/tryagain");
         }
+    };
+
+    const handleSignupSubmit = async(username, password) => {
+        const token = await signup(username, password);
     };
 
     const handleLogout = () => {
@@ -25,15 +30,14 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         token,
-        onLogin: handleLogin,
+        onLogin: handleLoginSubmit,
+        onSignup: handleSignupSubmit,
         onLogout: handleLogout,
     };
 
-    return (
-        <AuthContext.Provider value={{ value }}>
-        {children}
-        </AuthContext.Provider>
-    );
+    return ( <AuthContext.Provider value = {
+        { value }
+    } > { children } </AuthContext.Provider>);
 };
 
 // give callers access to the context
